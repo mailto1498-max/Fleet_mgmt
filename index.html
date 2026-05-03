@@ -12,20 +12,17 @@
      1. Go to https://supabase.com → New Project
      2. Settings → API → copy "Project URL" and "anon public" key
      ════════════════════════════════════════════════════════════════ -->
-<!-- Load the Supabase Library first -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-  // STEP 1: Supabase Configuration
-  const SUPABASE_URL = 'https://kfwcytlsqrhbzirhfyyy.supabase.com';
-  const SUPABASE_KEY = 'sb_publishable_yJm2R6Mu9rLZ9s-znCpLQw_NrSL15FO';
-  
-  // STEP 2: Initialize the Client
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  var SUPABASE_URL = 'https://kfwcytlsqrhbzirhfyyy.supabase.co';   // ← replace
+  var SUPABASE_KEY = 'sb_publishable_yJm2R6Mu9rLZ9s-znCpLQw_NrSL15FO';                  // ← replace
 </script>
 
 <!-- Supabase JS SDK (CDN) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Alias the Supabase global to avoid naming conflicts with our code
+  var supabaseJs = window.supabase;
+</script>
 
 <style>
 :root{--bg:#f0f2f7;--glass:rgba(255,255,255,0.72);--glass-border:rgba(255,255,255,0.9);--card-shadow:0 4px 24px rgba(99,115,170,0.11),0 1px 4px rgba(99,115,170,0.07);--sidebar-bg:linear-gradient(160deg,#1a2448 0%,#223068 60%,#1e3a6e 100%);--accent:#4f72e3;--accent2:#6c8ff5;--accent-grad:linear-gradient(135deg,#4f72e3 0%,#7c9ff7 100%);--danger:#e05c6a;--danger-grad:linear-gradient(135deg,#e05c6a 0%,#f07a85 100%);--success:#3dbf8a;--success-grad:linear-gradient(135deg,#3dbf8a 0%,#5dd4a2 100%);--text-primary:#1a2448;--text-secondary:#6b7a9e;--text-muted:#9aa3be;--text-light:rgba(255,255,255,0.92);--text-light2:rgba(255,255,255,0.55);--border:rgba(99,115,170,0.13);--radius:16px;--radius-pill:999px}
@@ -182,8 +179,8 @@ select option.available{color:#27936a}
 // ══════════════════════════════════════════════════════════════════
 
 // Initialize Supabase client
-let sb = null;
-let useSupabase = false;
+var sb = null;
+var useSupabase = false;
 
 function initSupabase() {
   try {
@@ -192,11 +189,11 @@ function initSupabase() {
       useSupabase = false;
       return false;
     }
-    sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    sb = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
     useSupabase = true;
     return true;
-  } catch(e) {
-    console.error('Supabase init failed:', e);
+  } catch(err) {
+    console.error('Supabase init failed:', err);
     useSupabase = false;
     return false;
   }
@@ -303,14 +300,14 @@ async function dbUpsertUser(matchField,matchVal,userData) {
 async function dbDeleteDriver(id)   { if(!useSupabase){drivers=drivers.filter(d=>d.id!==id);USERS=USERS.filter(u=>(u.driver_id||u.driverId)!==id);return;} await sb.from('drivers').delete().eq('id',id); await sb.from('users').delete().eq('driver_id',id); }
 async function dbDeleteEmployee(id) {
   if(!useSupabase){
-    var e=employees.find(x=>x.id===id);
+    var empDel=employees.find(x=>x.id===id);
     employees=employees.filter(x=>x.id!==id);
-    if(e)USERS=USERS.filter(u=>(u.emp_id||u.empId)!==(e.emp_id||e.empId));
+    if(empDel)USERS=USERS.filter(u=>(u.emp_id||u.empId)!==(empDel.emp_id||empDel.empId));
     return;
   }
-  const e=employees.find(x=>x.id===id);
+  var empToDelete=employees.find(x=>x.id===id);
   await sb.from('employees').delete().eq('id',id);
-  if(e) await sb.from('users').delete().eq('emp_id',e.emp_id||e.empId);
+  if(empToDelete) await sb.from('users').delete().eq('emp_id',empToDelete.emp_id||empToDelete.empId);
 }
 async function dbDeleteCar(id) { if(!useSupabase){cars=cars.filter(c=>c.id!==id);return;} await sb.from('cars').delete().eq('id',id); }
 
@@ -412,10 +409,10 @@ function normEmp(e){return{...e,empId:e.emp_id||e.empId};}
 async function refreshData(){
   if(!useSupabase) return;
   try{
-    const [u,d,e,c,r]=await Promise.all([dbGetUsers(),dbGetDrivers(),dbGetEmployees(),dbGetCars(),dbGetRequests()]);
-    liveUsers=u.map(normUser); liveDrivers=d; liveEmployees=e.map(normEmp); liveCars=c; liveRequests=r.map(normReq);
+    var [u,d,ec,c,r]=await Promise.all([dbGetUsers(),dbGetDrivers(),dbGetEmployees(),dbGetCars(),dbGetRequests()]);
+    liveUsers=u.map(normUser); liveDrivers=d; liveEmployees=ec.map(normEmp); liveCars=c; liveRequests=r.map(normReq);
     drivers=liveDrivers; employees=liveEmployees; cars=liveCars; requests=liveRequests; USERS=liveUsers;
-  } catch(e){ console.error('refreshData error',e); }
+  } catch(err){ console.error('refreshData error',e); }
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -511,8 +508,8 @@ async function doLogin(){
     currentUser=normUser(user);
     if(useSupabase) await refreshData();
     renderApp();
-  } catch(e){
-    toast('Login error: '+e.message,'err');
+  } catch(err){
+    toast('Login error: '+err.message,'err');
     if(btn){btn.textContent='Sign In →';btn.disabled=false;}
   }
 }
@@ -756,7 +753,7 @@ async function submitReq(){
     ['f-dept','f-phone','f-from','f-to','f-date','f-pickup','f-drop','f-notes'].forEach(id=>{var el=document.getElementById(id);if(el)el.value='';});
     toast('Request submitted!','ok');
     if(btn){btn.textContent='Submit Request →';btn.disabled=false;}
-  } catch(e){ toast('Error: '+e.message,'err'); if(btn){btn.textContent='Submit Request →';btn.disabled=false;} }
+  } catch(err){ toast('Error: '+err.message,'err'); if(btn){btn.textContent='Submit Request →';btn.disabled=false;} }
 }
 
 // ── MY REQUESTS ───────────────────────────────────────────────────
@@ -834,7 +831,7 @@ async function confirmAssign(){
   try{
     await dbUpdateRequest(req.id,updates);
     closeModal('assign-modal'); await renderReqs(); toast(`${d} assigned to ${req.empId||req.emp_id}`,'ok');
-  } catch(e){ toast('Error: '+e.message,'err'); } finally{ if(btn){btn.textContent='Confirm Assignment';btn.disabled=false;} }
+  } catch(err){ toast('Error: '+err.message,'err'); } finally{ if(btn){btn.textContent='Confirm Assignment';btn.disabled=false;} }
 }
 function openDecline(id){declineTarget=id;document.getElementById('decline-reason').value='';openModal('decline-modal');}
 async function confirmDecline(){
@@ -844,7 +841,7 @@ async function confirmDecline(){
   try{
     await dbUpdateRequest(declineTarget,{status:'declined',decline_reason:reason,driver:'',car:''});
     closeModal('decline-modal'); await renderReqs(); toast('Request declined','warn');
-  } catch(e){ toast('Error: '+e.message,'err'); } finally{ if(btn){btn.textContent='Decline Request';btn.disabled=false;} }
+  } catch(err){ toast('Error: '+err.message,'err'); } finally{ if(btn){btn.textContent='Decline Request';btn.disabled=false;} }
 }
 
 // ── DRIVER TRIPS ──────────────────────────────────────────────────
@@ -887,7 +884,7 @@ async function confirmComplete(){
   try{
     await dbUpdateRequest(completeTarget,{status:'completed',actual_km:km,end_time:document.getElementById('c-endtime').value,driver_notes:document.getElementById('c-notes').value});
     closeModal('complete-modal'); await renderDriverTrips(); toast('Trip completed! KM: '+km,'ok');
-  } catch(e){ toast('Error: '+e.message,'err'); } finally{ if(btn){btn.textContent='Mark Completed ✓';btn.disabled=false;} }
+  } catch(err){ toast('Error: '+err.message,'err'); } finally{ if(btn){btn.textContent='Mark Completed ✓';btn.disabled=false;} }
 }
 
 // ── MANAGE FLEET ──────────────────────────────────────────────────
@@ -929,11 +926,11 @@ function filterFleetDrivers(q){updateClear('fleet-drv-search',q);var f=q.toLower
 function filterFleetCars(q){updateClear('fleet-car-search',q);var f=q.toLowerCase();renderFleetCars(cars.filter(c=>c.model.toLowerCase().includes(f)||c.reg.toLowerCase().includes(f)||c.color.toLowerCase().includes(f)));}
 async function removeDriver(id){
   if(!confirm('Remove this driver?'))return;
-  try{ await dbDeleteDriver(id); await renderFleet(); toast('Driver removed','warn'); } catch(e){ toast('Error: '+e.message,'err'); }
+  try{ await dbDeleteDriver(id); await renderFleet(); toast('Driver removed','warn'); } catch(err){ toast('Error: '+err.message,'err'); }
 }
 async function removeCar(id){
   if(!confirm('Remove this car?'))return;
-  try{ await dbDeleteCar(id); await renderFleet(); toast('Car removed','warn'); } catch(e){ toast('Error: '+e.message,'err'); }
+  try{ await dbDeleteCar(id); await renderFleet(); toast('Car removed','warn'); } catch(err){ toast('Error: '+err.message,'err'); }
 }
 async function addDriver(){
   var name=fv('nd-name'),phone=fv('nd-phone'),license=fv('nd-license'),uname=fv('nd-username').toLowerCase(),pass=document.getElementById('nd-password').value;
@@ -946,7 +943,7 @@ async function addDriver(){
     ['nd-name','nd-phone','nd-license','nd-username','nd-password'].forEach(id=>{var el=document.getElementById(id);if(el)el.value='';});
     if(useSupabase) await refreshData();
     await renderFleet(); toast(name+' added','ok');
-  } catch(e){ toast('Error: '+e.message,'err'); }
+  } catch(err){ toast('Error: '+err.message,'err'); }
 }
 async function addCar(){
   var reg=fv('nc-reg'),model=fv('nc-model'),color=fv('nc-color'),hex=document.getElementById('nc-hex').value;
@@ -957,7 +954,7 @@ async function addCar(){
     ['nc-reg','nc-model','nc-color'].forEach(id=>{var el=document.getElementById(id);if(el)el.value='';});
     if(useSupabase) await refreshData();
     await renderFleet(); toast(model+' added','ok');
-  } catch(e){ toast('Error: '+e.message,'err'); }
+  } catch(err){ toast('Error: '+err.message,'err'); }
 }
 
 // ── MANAGE USERS ──────────────────────────────────────────────────
@@ -1040,11 +1037,11 @@ async function saveCredentials(){
       }
     }
     closeModal('edit-cred-modal'); await renderUsers(); toast('Credentials updated!','ok');
-  } catch(e){ toast('Error: '+e.message,'err'); }
+  } catch(err){ toast('Error: '+err.message,'err'); }
 }
 async function removeEmployee(id){
   if(!confirm('Remove this employee?'))return;
-  try{ await dbDeleteEmployee(id); if(useSupabase) await refreshData(); await renderUsers(); toast('Employee removed','warn'); } catch(e){ toast('Error: '+e.message,'err'); }
+  try{ await dbDeleteEmployee(id); if(useSupabase) await refreshData(); await renderUsers(); toast('Employee removed','warn'); } catch(err){ toast('Error: '+err.message,'err'); }
 }
 async function addEmployee(){
   var name=fv('ne-name'), empId=fv('ne-empid').toUpperCase(), dept=fv('ne-dept'), phone=fv('ne-phone'), uname=fv('ne-username').toLowerCase(), pass=document.getElementById('ne-password').value;
@@ -1058,7 +1055,7 @@ async function addEmployee(){
     ['ne-name','ne-empid','ne-dept','ne-phone','ne-username','ne-password'].forEach(id=>{var el=document.getElementById(id);if(el)el.value='';});
     if(useSupabase) await refreshData();
     await renderUsers(); toast(name+' added with login','ok');
-  } catch(e){ toast('Error: '+e.message,'err'); }
+  } catch(err){ toast('Error: '+err.message,'err'); }
 }
 
 // ── MONTHLY TRACKING ──────────────────────────────────────────────
@@ -1129,7 +1126,7 @@ async function renderReports(){
   try{
     await refreshData();
     renderLogin();
-  } catch(e){
+  } catch(err){
     console.error('Supabase connection failed:',e);
     useSupabase=false;
     toast('Could not connect to Supabase — running in demo mode','warn');
