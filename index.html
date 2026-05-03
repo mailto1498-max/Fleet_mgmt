@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FleetDesk — Fleet Management System</title>
+<title>FleetDesk -- Fleet Management System</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-<!-- ════════════════════════════════════════════════════════════════
-     STEP 1: Replace the two values below with your Supabase project
-     ─────────────────────────────────────────────────────────────
-     1. Go to https://supabase.com → New Project
-     2. Settings → API → copy "Project URL" and "anon public" key
-     ════════════════════════════════════════════════════════════════ -->
+<!--
+  STEP 1: Replace SUPABASE_URL and SUPABASE_KEY below.
+  Go to supabase.com > Your Project > Settings > API
+  Copy "Project URL" and "anon public" key (starts with eyJ...)
+  IMPORTANT: Use the "anon public" key, NOT the "publishable" key
+-->
 <script>
-  var SUPABASE_URL = "https://kfwcytlsqrhbzirhfyyy.supabase.co";   // ← replace
-  var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtmd2N5dGxzcXJoYnppcmhmeXl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NTMyMzYsImV4cCI6MjA5MzIyOTIzNn0.KYrC33fMXh3vfFr_Ivq99guLeJSWAxrQLpnm-Zs-XCI";                  // ← replace
+  var SUPABASE_URL = "https://kfwcytlsqrhbzirhfyyy.supabase.co";
+  var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtmd2N5dGxzcXJoYnppcmhmeXl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NTMyMzYsImV4cCI6MjA5MzIyOTIzNn0.KYrC33fMXh3vfFr_Ivq99guLeJSWAxrQLpnm-Zs-XCI";  // WRONG KEY - see instructions below
 </script>
 
 <!-- Supabase JS SDK (CDN) -->
@@ -174,9 +174,9 @@ select option.available{color:#27936a}
 <div id="toast" class="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════════════════════
+// ==================================================================
 //  SUPABASE SETUP & DATABASE LAYER
-// ══════════════════════════════════════════════════════════════════
+// ==================================================================
 
 // Initialize Supabase client
 var sb = null;
@@ -185,7 +185,7 @@ var useSupabase = false;
 function initSupabase() {
   try {
     if (SUPABASE_URL === 'https://YOUR_PROJECT_ID.supabase.co' || SUPABASE_KEY === 'YOUR_ANON_PUBLIC_KEY') {
-      console.warn('FleetDesk: Supabase not configured — running in local demo mode.');
+      console.warn('FleetDesk: Supabase not configured -- running in local demo mode.');
       useSupabase = false;
       return false;
     }
@@ -199,10 +199,10 @@ function initSupabase() {
   }
 }
 
-// ── DATABASE SCHEMA (run once in Supabase SQL Editor) ─────────────
-// Copy-paste the SQL below into Supabase → SQL Editor → Run
+// -- DATABASE SCHEMA (run once in Supabase SQL Editor) -------------
+// Copy-paste the SQL below into Supabase -> SQL Editor -> Run
 /*
-────────────────────────────────────────────────────────────────────
+--------------------------------------------------------------------
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   username TEXT UNIQUE NOT NULL,
@@ -262,11 +262,11 @@ CREATE TABLE requests (
 
 -- Insert default admin account (change password after first login!)
 INSERT INTO users (username, password, role, display_name) VALUES ('admin','admin123','admin','Admin');
-────────────────────────────────────────────────────────────────────
+--------------------------------------------------------------------
 */
 
-// ── DB ABSTRACTION LAYER ──────────────────────────────────────────
-// All data operations route through here — works with both
+// -- DB ABSTRACTION LAYER ------------------------------------------
+// All data operations route through here -- works with both
 // Supabase (live) and local arrays (demo mode).
 
 async function dbGetUsers()     { if(!useSupabase) return USERS; const {data}=await sb.from('users').select('*'); return data||[]; }
@@ -320,7 +320,7 @@ async function dbAuthUser(username, password) {
   return data||null;
 }
 
-// ── LOCAL FALLBACK DATA (used when Supabase not configured) ────────
+// -- LOCAL FALLBACK DATA (used when Supabase not configured) --------
 var USERS=[
   {id:'u0', username:'admin',   password:'admin123', role:'admin',    displayName:'Admin',          display_name:'Admin',          empId:null, emp_id:null, driverId:null, driver_id:null},
   {id:'u1', username:'rahul',   password:'driver1',  role:'driver',   displayName:'Rahul Sharma',   display_name:'Rahul Sharma',   empId:null, emp_id:null, driverId:1,    driver_id:1},
@@ -385,10 +385,10 @@ var requests=[
 ];
 var nextDriverId=13,nextCarId=13,nextEmpId=6,nextUserId=18;
 
-// ── LIVE DATA (loaded from Supabase) ──────────────────────────────
+// -- LIVE DATA (loaded from Supabase) ------------------------------
 var liveDrivers=[], liveEmployees=[], liveCars=[], liveRequests=[], liveUsers=[];
 
-// Normalise Supabase row → app field names
+// Normalise Supabase row -> app field names
 function normReq(r){
   return{...r,
     empId:r.emp_id||r.empId,from:r.from_loc||r.from,to:r.to_loc||r.to,
@@ -415,9 +415,9 @@ async function refreshData(){
   } catch(err){ console.error('refreshData error',e); }
 }
 
-// ══════════════════════════════════════════════════════════════════
+// ==================================================================
 //  APP GLOBALS
-// ══════════════════════════════════════════════════════════════════
+// ==================================================================
 var currentUser=null, assignTarget=null, declineTarget=null, completeTarget=null, editCredTarget=null;
 
 function toMins(t){if(!t)return 0;var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1]);}
@@ -437,12 +437,12 @@ function toast(msg,type){var t=document.getElementById('toast');t.textContent=ms
 function togglePass(id,btn){var el=document.getElementById(id);if(!el)return;el.type=el.type==='password'?'text':'password';btn.textContent=el.type==='password'?'👁':'🙈';}
 function fv(id){var el=document.getElementById(id);return el?el.value.trim():'';}
 function updateClear(id,val){var c=document.getElementById(id+'-clear');if(c)c.style.display=val?'block':'none';}
-function searchWidget(id,ph,fn){return`<div class="search-wrap"><span class="search-icon">🔍</span><input id="${id}" placeholder="${ph}" oninput="${fn}" style="padding-left:36px"/><button class="search-clear" id="${id}-clear" onclick="var el=document.getElementById('${id}');el.value='';el.dispatchEvent(new Event('input'))">✕</button></div>`;}
+function searchWidget(id,ph,fn){return`<div class="search-wrap"><span class="search-icon">🔍</span><input id="${id}" placeholder="${ph}" oninput="${fn}" style="padding-left:36px"/><button class="search-clear" id="${id}-clear" onclick="var el=document.getElementById('${id}');el.value='';el.dispatchEvent(new Event('input'))">x</button></div>`;}
 var CAR_SVG=`<svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>`;
 
-// ══════════════════════════════════════════════════════════════════
+// ==================================================================
 //  RENDER ENGINE
-// ══════════════════════════════════════════════════════════════════
+// ==================================================================
 function setPage(html){document.getElementById('main-content').innerHTML=`<div class="fade-in">${html}</div>`;}
 
 async function render(){
@@ -450,7 +450,7 @@ async function render(){
   renderApp();
 }
 
-// ── SETUP GUIDE (shown when Supabase not configured) ──────────────
+// -- SETUP GUIDE (shown when Supabase not configured) --------------
 function renderSetupGuide(){
   document.getElementById('root').innerHTML=`
   <div class="login-wrap">
@@ -461,31 +461,31 @@ function renderSetupGuide(){
         <div style="font-size:11px;color:var(--text-secondary)">Supabase Setup Required</div></div>
       </div>
       <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:14px">Connect your database in 3 steps:</div>
-      <div class="setup-step"><div class="step-num">1</div><div>Go to <strong>supabase.com</strong> → Create a free account → New Project</div></div>
-      <div class="setup-step"><div class="step-num">2</div><div>In your project: <strong>SQL Editor</strong> → paste & run the SQL schema from this file's source code comment (search for <code>CREATE TABLE</code>)</div></div>
-      <div class="setup-step"><div class="step-num">3</div><div>Go to <strong>Settings → API</strong> → copy your <code>Project URL</code> and <code>anon public</code> key → paste into the top of this file where it says <code>SUPABASE_URL</code> and <code>SUPABASE_KEY</code></div></div>
+      <div class="setup-step"><div class="step-num">1</div><div>Go to <strong>supabase.com</strong> -> Create a free account -> New Project</div></div>
+      <div class="setup-step"><div class="step-num">2</div><div>In your project: <strong>SQL Editor</strong> -> paste & run the SQL schema from this file's source code comment (search for <code>CREATE TABLE</code>)</div></div>
+      <div class="setup-step"><div class="step-num">3</div><div>Go to <strong>Settings -> API</strong> -> copy your <code>Project URL</code> and <code>anon public</code> key -> paste into the top of this file where it says <code>SUPABASE_URL</code> and <code>SUPABASE_KEY</code></div></div>
       <div style="margin-top:1.25rem;padding:1rem;background:rgba(61,191,138,0.08);border:1px solid rgba(61,191,138,0.2);border-radius:10px;font-size:12px;color:#27936a">
-        <strong>Not ready yet?</strong> That's fine — click below to continue with demo data. All features work, but data resets on page refresh.
+        <strong>Not ready yet?</strong> That's fine -- click below to continue with demo data. All features work, but data resets on page refresh.
       </div>
-      <button class="btn btn-primary btn-block" style="margin-top:1rem;padding:11px" onclick="renderLogin()">Continue with demo data →</button>
+      <button class="btn btn-primary btn-block" style="margin-top:1rem;padding:11px" onclick="renderLogin()">Continue with demo data -></button>
     </div>
   </div>`;
 }
 
-// ── LOGIN ─────────────────────────────────────────────────────────
+// -- LOGIN ---------------------------------------------------------
 function renderLogin(){
   document.getElementById('root').innerHTML=`
   <div class="login-wrap">
     <div class="login-box">
       <div class="login-logo">${CAR_SVG}</div>
       <div class="login-title">FleetDesk</div>
-      <div class="login-sub">${useSupabase?'Connected to Supabase ✓':'Demo mode — data resets on refresh'}</div>
+      <div class="login-sub">${useSupabase?'Connected to Supabase v':'Demo mode -- data resets on refresh'}</div>
       <div class="fg" style="margin-bottom:14px"><label>Username</label><input id="l-user" placeholder="Enter username" onkeydown="if(event.key==='Enter')doLogin()"/></div>
       <div class="fg"><label>Password</label>
         <div class="pass-field"><input id="l-pass" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()"/>
         <button class="pass-toggle" onclick="togglePass('l-pass',this)">👁</button></div>
       </div>
-      <button class="btn btn-primary btn-block" style="padding:12px;margin-top:16px" id="login-btn" onclick="doLogin()">Sign In →</button>
+      <button class="btn btn-primary btn-block" style="padding:12px;margin-top:16px" id="login-btn" onclick="doLogin()">Sign In -></button>
       <div id="l-err" class="login-err">Invalid username or password.</div>
       ${!useSupabase?`<div style="background:rgba(79,114,227,0.06);border:1px solid rgba(79,114,227,0.15);border-radius:12px;padding:.9rem 1rem;margin-top:1.2rem;font-size:11px;color:var(--text-secondary);line-height:2">
         <strong>Demo credentials</strong><br>
@@ -499,27 +499,27 @@ function renderLogin(){
 
 async function doLogin(){
   var btn=document.getElementById('login-btn');
-  if(btn){btn.textContent='Signing in…';btn.disabled=true;}
+  if(btn){btn.textContent='Signing in...';btn.disabled=true;}
   var u=document.getElementById('l-user').value.trim().toLowerCase();
   var p=document.getElementById('l-pass').value;
   try{
     var user=await dbAuthUser(u,p);
-    if(!user){document.getElementById('l-err').style.display='block';if(btn){btn.textContent='Sign In →';btn.disabled=false;}return;}
+    if(!user){document.getElementById('l-err').style.display='block';if(btn){btn.textContent='Sign In ->';btn.disabled=false;}return;}
     currentUser=normUser(user);
     if(useSupabase) await refreshData();
     renderApp();
   } catch(err){
     toast('Login error: '+err.message,'err');
-    if(btn){btn.textContent='Sign In →';btn.disabled=false;}
+    if(btn){btn.textContent='Sign In ->';btn.disabled=false;}
   }
 }
 
-// ── APP SHELL ─────────────────────────────────────────────────────
+// -- APP SHELL -----------------------------------------------------
 function renderApp(){
   var isAdmin=currentUser.role==='admin', isDriver=currentUser.role==='driver', isEmp=currentUser.role==='employee';
   var navs=[];
   navs.push({id:'dashboard',icon:'📊',label:'Dashboard'});
-  if(isEmp)    navs.push({id:'request',      icon:'➕',label:'New Request'});
+  if(isEmp)    navs.push({id:'request',      icon:'+',label:'New Request'});
   if(isEmp)    navs.push({id:'my-requests',  icon:'📋',label:'My Requests'});
   if(isAdmin)  navs.push({id:'requests',     icon:'📋',label:'All Requests'});
   if(isDriver) navs.push({id:'driver-trips', icon:'🚗',label:'My Trips'});
@@ -535,7 +535,7 @@ function renderApp(){
       <div class="logo-area">
         <div class="logo-icon">${CAR_SVG}</div>
         <div class="logo-name">FleetDesk</div>
-        <div class="logo-sub">${useSupabase?'Live — Supabase connected':'Demo mode'}</div>
+        <div class="logo-sub">${useSupabase?'Live -- Supabase connected':'Demo mode'}</div>
       </div>
       <div class="nav-section">
         <div class="nav-label">Navigation</div>
@@ -549,7 +549,7 @@ function renderApp(){
           ${empId?`<div class="emp-id" style="margin-top:3px">${empId}</div>`:''}
           </div>
         </div>
-        <button class="btn-logout" onclick="logout()">← Sign out</button>
+        <button class="btn-logout" onclick="logout()"><- Sign out</button>
       </div>
     </div>
     <div class="main" id="main-content"></div>
@@ -559,7 +559,7 @@ function renderApp(){
       <div class="modal-title">Assign Driver & Car</div>
       <div id="assign-info"></div>
       <div class="fg" style="margin-bottom:8px"><label>Driver</label><select id="a-driver" onchange="checkConflict()"></select></div>
-      <div id="conflict-warn" class="warn-box">⚠ Driver is already on a trip during this time frame.</div>
+      <div id="conflict-warn" class="warn-box">! Driver is already on a trip during this time frame.</div>
       <div class="fg" style="margin-bottom:14px"><label>Car</label><select id="a-car"></select></div>
       <div class="fg"><label>Estimated KM</label><input type="number" id="a-km" placeholder="e.g. 28"/></div>
       <div class="modal-footer">
@@ -585,7 +585,7 @@ function renderApp(){
       <div class="fg" style="margin-bottom:14px"><label>Trip End Time</label><input type="time" id="c-endtime"/></div>
       <div class="fg"><label>Notes</label><textarea id="c-notes" placeholder="Optional notes"></textarea></div>
       <div class="modal-footer">
-        <button class="btn btn-success btn-sm" id="complete-confirm-btn" onclick="confirmComplete()">Mark Completed ✓</button>
+        <button class="btn btn-success btn-sm" id="complete-confirm-btn" onclick="confirmComplete()">Mark Completed v</button>
         <button class="btn btn-ghost btn-sm" onclick="closeModal('complete-modal')">Cancel</button>
       </div>
     </div></div>
@@ -670,7 +670,7 @@ async function go(id){
   if(pages[id]) await pages[id]();
 }
 
-// ── DASHBOARD ─────────────────────────────────────────────────────
+// -- DASHBOARD -----------------------------------------------------
 async function renderDash(){
   var isDriver=currentUser.role==='driver', isEmp=currentUser.role==='employee';
   var myEmpId=currentUser.empId||currentUser.emp_id||'';
@@ -678,7 +678,7 @@ async function renderDash(){
   var p=list.filter(r=>r.status==='pending').length, done=list.filter(r=>r.status==='completed').length, km=list.reduce((s,r)=>s+(r.actualKm||r.actual_km||0),0);
   setPage(`
     <div class="ptitle">Dashboard</div>
-    <div class="psubtitle">Welcome back, ${currentUser.displayName}${useSupabase?' &nbsp;·&nbsp; <span style="color:var(--success);font-size:11px">● Live</span>':' &nbsp;·&nbsp; <span style="color:var(--text-muted);font-size:11px">Demo mode</span>'}</div>
+    <div class="psubtitle">Welcome back, ${currentUser.displayName}${useSupabase?' &nbsp;.&nbsp; <span style="color:var(--success);font-size:11px">* Live</span>':' &nbsp;.&nbsp; <span style="color:var(--text-muted);font-size:11px">Demo mode</span>'}</div>
     <div class="stats">
       <div class="scard"><div class="scard-accent" style="background:var(--accent-grad)"></div><div class="scard-label">${isEmp?'My Requests':'Total Requests'}</div><div class="scard-val">${list.length}</div><div class="scard-sub">All time</div></div>
       <div class="scard"><div class="scard-accent" style="background:linear-gradient(90deg,#f59e42,#fbbf6e)"></div><div class="scard-label">Pending</div><div class="scard-val">${p}</div><div class="scard-sub">Awaiting action</div></div>
@@ -692,12 +692,12 @@ async function renderDash(){
       <tbody>${list.slice(0,6).map(r=>{
         var ei=r.empId||r.emp_id, pt=r.pickupTime||r.pickup_time, dt=r.dropTime||r.drop_time;
         var fr=r.from||r.from_loc, to=r.to||r.to_loc;
-        return`<tr><td class="emp-id">${ei}</td><td><div style="font-weight:600;font-size:13px">${r.name}</div><div style="font-size:11px;color:var(--text-muted)">${r.dept||''}</div></td><td style="font-size:12px;color:var(--text-secondary)">${fr} → ${to}</td><td><span class="time-range-badge">🕐 ${pt} – ${dt}</span><div style="font-size:10px;color:var(--text-muted);margin-top:2px">${r.date}</div></td><td>${badge(r.status)}</td></tr>`;
+        return`<tr><td class="emp-id">${ei}</td><td><div style="font-weight:600;font-size:13px">${r.name}</div><div style="font-size:11px;color:var(--text-muted)">${r.dept||''}</div></td><td style="font-size:12px;color:var(--text-secondary)">${fr} -> ${to}</td><td><span class="time-range-badge">🕐 ${pt} - ${dt}</span><div style="font-size:10px;color:var(--text-muted);margin-top:2px">${r.date}</div></td><td>${badge(r.status)}</td></tr>`;
       }).join('')}</tbody></table>`}
     </div>`);
 }
 
-// ── NEW REQUEST ───────────────────────────────────────────────────
+// -- NEW REQUEST ---------------------------------------------------
 async function renderRequest(){
   var myEmpId=currentUser.empId||currentUser.emp_id||'', myName=currentUser.displayName||'';
   setPage(`
@@ -728,9 +728,9 @@ async function renderRequest(){
         <div class="fg"><label>🕐 Pickup Time *</label><input type="time" id="f-pickup" oninput="validateTimes()"/></div>
         <div class="fg"><label>🕓 Drop Time *</label><input type="time" id="f-drop" oninput="validateTimes()"/></div>
       </div>
-      <div id="time-warn" style="font-size:11px;color:var(--danger);background:rgba(224,92,106,0.07);padding:7px 10px;border-radius:8px;border:1px solid rgba(224,92,106,0.2);margin-bottom:10px;display:none">⚠ Drop time must be after pickup time.</div>
+      <div id="time-warn" style="font-size:11px;color:var(--danger);background:rgba(224,92,106,0.07);padding:7px 10px;border-radius:8px;border:1px solid rgba(224,92,106,0.2);margin-bottom:10px;display:none">! Drop time must be after pickup time.</div>
       <div class="fg" style="margin-bottom:18px"><label>Purpose / Notes</label><textarea id="f-notes" placeholder="e.g. Client meeting at Infosys campus"></textarea></div>
-      <button class="btn btn-primary" style="padding:11px 28px" id="submit-req-btn" onclick="submitReq()">Submit Request →</button>
+      <button class="btn btn-primary" style="padding:11px 28px" id="submit-req-btn" onclick="submitReq()">Submit Request -></button>
     </div>`);
 }
 
@@ -745,24 +745,24 @@ async function submitReq(){
   if(!empId||!name||!from||!to||!date||!pickup||!drop){toast('Fill all required (*) fields','err');return;}
   if(toMins(drop)<=toMins(pickup)){toast('Drop time must be after pickup time','err');return;}
   var btn=document.getElementById('submit-req-btn');
-  if(btn){btn.textContent='Submitting…';btn.disabled=true;}
+  if(btn){btn.textContent='Submitting...';btn.disabled=true;}
   var month=new Date(date).toLocaleString('default',{month:'long'});
   var rec={emp_id:empId,empId,name,dept:fv('f-dept'),phone:fv('f-phone'),from_loc:from,from,to_loc:to,to,date,pickup_time:pickup,pickupTime:pickup,drop_time:drop,dropTime:drop,notes:fv('f-notes'),status:'pending',driver:'',car:'',est_km:0,estKm:0,actual_km:0,actualKm:0,end_time:'',endTime:'',driver_notes:'',driverNotes:'',decline_reason:'',declineReason:'',month};
   try{
     await dbInsertRequest(rec);
     ['f-dept','f-phone','f-from','f-to','f-date','f-pickup','f-drop','f-notes'].forEach(id=>{var el=document.getElementById(id);if(el)el.value='';});
     toast('Request submitted!','ok');
-    if(btn){btn.textContent='Submit Request →';btn.disabled=false;}
-  } catch(err){ toast('Error: '+err.message,'err'); if(btn){btn.textContent='Submit Request →';btn.disabled=false;} }
+    if(btn){btn.textContent='Submit Request ->';btn.disabled=false;}
+  } catch(err){ toast('Error: '+err.message,'err'); if(btn){btn.textContent='Submit Request ->';btn.disabled=false;} }
 }
 
-// ── MY REQUESTS ───────────────────────────────────────────────────
+// -- MY REQUESTS ---------------------------------------------------
 async function renderMyRequests(){
   var myEmpId=currentUser.empId||currentUser.emp_id||'';
   var mine=requests.filter(r=>(r.empId||r.emp_id)===myEmpId);
   setPage(`
     <div class="ptitle">My Requests</div>
-    <div class="psubtitle">Your personal travel history — ${myEmpId}</div>
+    <div class="psubtitle">Your personal travel history -- ${myEmpId}</div>
     ${!mine.length?`<div class="glass-card"><div class="empty-state"><div class="icon">🚗</div><div class="msg">No requests yet</div><div class="sub">Use "New Request" to raise a travel request</div></div></div>`:`
     <div class="glass-card" style="padding:0;overflow:hidden">
       <table class="tbl">
@@ -770,19 +770,19 @@ async function renderMyRequests(){
         <tbody>${mine.map(r=>{
           var pt=r.pickupTime||r.pickup_time, dt=r.dropTime||r.drop_time, fr=r.from||r.from_loc, to=r.to||r.to_loc, akm=r.actualKm||r.actual_km||0, ekm=r.estKm||r.est_km||0, dr=r.declineReason||r.decline_reason||'';
           return`<tr>
-            <td style="padding:12px 16px"><div style="font-weight:600;font-size:13px">${fr} → ${to}</div><div style="font-size:11px;color:var(--text-muted)">${r.notes||'—'}</div></td>
+            <td style="padding:12px 16px"><div style="font-weight:600;font-size:13px">${fr} -> ${to}</div><div style="font-size:11px;color:var(--text-muted)">${r.notes||'--'}</div></td>
             <td style="font-size:11px;color:var(--text-muted)">${r.date}</td>
-            <td><span class="time-range-badge">🕐 ${pt} – ${dt}</span></td>
+            <td><span class="time-range-badge">🕐 ${pt} - ${dt}</span></td>
             <td style="font-size:12px;color:var(--text-secondary)">${r.driver||'<span style="color:var(--text-muted)">Pending</span>'}</td>
             <td>${badge(r.status)}${r.status==='declined'&&dr?`<div style="font-size:10px;color:var(--danger);margin-top:3px">${dr}</div>`:''}</td>
-            <td style="font-size:12px;font-weight:600">${akm||ekm||'—'}</td></tr>`;
+            <td style="font-size:12px;font-weight:600">${akm||ekm||'--'}</td></tr>`;
         }).join('')}
         </tbody>
       </table>
     </div>`});
 }
 
-// ── ALL REQUESTS ──────────────────────────────────────────────────
+// -- ALL REQUESTS --------------------------------------------------
 async function renderReqs(){
   setPage(`
     <div class="ptitle">All Requests</div>
@@ -800,8 +800,8 @@ async function renderReqs(){
           return`<tr>
             <td class="emp-id" style="padding:12px 16px">${ei}</td>
             <td><div style="font-weight:600;font-size:13px">${r.name}</div><div style="font-size:11px;color:var(--text-muted)">${r.dept||''}</div></td>
-            <td style="font-size:12px;color:var(--text-secondary)">${fr} → ${to}</td>
-            <td><span class="time-range-badge">🕐 ${pt} – ${dt}</span><div style="font-size:10px;color:var(--text-muted);margin-top:2px">${r.date}</div></td>
+            <td style="font-size:12px;color:var(--text-secondary)">${fr} -> ${to}</td>
+            <td><span class="time-range-badge">🕐 ${pt} - ${dt}</span><div style="font-size:10px;color:var(--text-muted);margin-top:2px">${r.date}</div></td>
             <td>${badge(r.status)}</td><td>${act}</td></tr>`;
         }).join('')}</tbody>
       </table>
@@ -811,9 +811,9 @@ async function renderReqs(){
 function openAssign(id){
   assignTarget=id; var req=requests.find(r=>r.id===id); if(!req)return;
   var pt=req.pickupTime||req.pickup_time, dt=req.dropTime||req.drop_time, fr=req.from||req.from_loc, to=req.to||req.to_loc;
-  document.getElementById('assign-info').innerHTML=`<div class="info-box">📍 ${fr} → ${to}<br>📅 ${req.date} &nbsp;·&nbsp; 🕐 ${pt} – ${dt}</div>`;
-  document.getElementById('a-driver').innerHTML=drivers.map(d=>{var busy=isDriverBusyInFrame(d.name,req.date,pt,dt,id);return`<option value="${d.name}" class="${busy?'unavailable':'available'}">${busy?'⚠':'✓'} ${d.name}${busy?' — Busy '+pt+'-'+dt:' — Available'}</option>`;}).join('');
-  document.getElementById('a-car').innerHTML=cars.map(c=>`<option value="${c.reg}">${c.reg} — ${c.model}</option>`).join('');
+  document.getElementById('assign-info').innerHTML=`<div class="info-box">📍 ${fr} -> ${to}<br>📅 ${req.date} &nbsp;.&nbsp; 🕐 ${pt} - ${dt}</div>`;
+  document.getElementById('a-driver').innerHTML=drivers.map(d=>{var busy=isDriverBusyInFrame(d.name,req.date,pt,dt,id);return`<option value="${d.name}" class="${busy?'unavailable':'available'}">${busy?'!':'v'} ${d.name}${busy?' -- Busy '+pt+'-'+dt:' -- Available'}</option>`;}).join('');
+  document.getElementById('a-car').innerHTML=cars.map(c=>`<option value="${c.reg}">${c.reg} -- ${c.model}</option>`).join('');
   document.getElementById('a-km').value=''; checkConflict(); openModal('assign-modal');
 }
 function checkConflict(){
@@ -825,7 +825,7 @@ async function confirmAssign(){
   var req=requests.find(r=>r.id===assignTarget); if(!req)return;
   var d=document.getElementById('a-driver').value, pt=req.pickupTime||req.pickup_time, dt=req.dropTime||req.drop_time;
   if(isDriverBusyInFrame(d,req.date,pt,dt,assignTarget)){toast('Driver is busy during this time frame!','err');return;}
-  var btn=document.getElementById('assign-confirm-btn'); if(btn){btn.textContent='Saving…';btn.disabled=true;}
+  var btn=document.getElementById('assign-confirm-btn'); if(btn){btn.textContent='Saving...';btn.disabled=true;}
   var month=new Date(req.date).toLocaleString('default',{month:'long'});
   var updates={status:'assigned',driver:d,car:document.getElementById('a-car').value,est_km:parseInt(document.getElementById('a-km').value)||0,month};
   try{
@@ -837,34 +837,34 @@ function openDecline(id){declineTarget=id;document.getElementById('decline-reaso
 async function confirmDecline(){
   var reason=document.getElementById('decline-reason').value.trim();
   if(!reason){toast('Please enter a reason','err');return;}
-  var btn=document.getElementById('decline-confirm-btn'); if(btn){btn.textContent='Saving…';btn.disabled=true;}
+  var btn=document.getElementById('decline-confirm-btn'); if(btn){btn.textContent='Saving...';btn.disabled=true;}
   try{
     await dbUpdateRequest(declineTarget,{status:'declined',decline_reason:reason,driver:'',car:''});
     closeModal('decline-modal'); await renderReqs(); toast('Request declined','warn');
   } catch(err){ toast('Error: '+err.message,'err'); } finally{ if(btn){btn.textContent='Decline Request';btn.disabled=false;} }
 }
 
-// ── DRIVER TRIPS ──────────────────────────────────────────────────
+// -- DRIVER TRIPS --------------------------------------------------
 async function renderDriverTrips(){
   var name=currentUser.displayName;
   var trips=requests.filter(r=>r.driver===name&&(r.status==='assigned'||r.status==='completed'));
   setPage(`
     <div class="ptitle">My Trips</div>
-    <div class="psubtitle">Trips assigned to you — ${name}</div>
+    <div class="psubtitle">Trips assigned to you -- ${name}</div>
     ${!trips.length?`<div class="glass-card"><div class="empty-state"><div class="icon">🚗</div><div class="msg">No trips assigned yet</div></div></div>`:
     trips.map(r=>{
       var pt=r.pickupTime||r.pickup_time, dt=r.dropTime||r.drop_time, fr=r.from||r.from_loc, to=r.to||r.to_loc, dn=r.driverNotes||r.driver_notes||'', et=r.endTime||r.end_time||'', akm=r.actualKm||r.actual_km||0;
       return`<div class="glass-card">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
-          <div><div style="font-size:15px;font-weight:700;margin-bottom:4px">${fr} → ${to}</div>
-          <div class="emp-id">${r.empId||r.emp_id} · ${r.name} · ${r.dept||''}</div>
+          <div><div style="font-size:15px;font-weight:700;margin-bottom:4px">${fr} -> ${to}</div>
+          <div class="emp-id">${r.empId||r.emp_id} . ${r.name} . ${r.dept||''}</div>
           <div style="margin-top:5px;display:flex;gap:8px;align-items:center">
-            <span class="time-range-badge">🕐 ${pt} – ${dt}</span>
-            <span style="font-size:11px;color:var(--text-muted)">${r.date} · Car: <strong>${r.car}</strong></span>
+            <span class="time-range-badge">🕐 ${pt} - ${dt}</span>
+            <span style="font-size:11px;color:var(--text-muted)">${r.date} . Car: <strong>${r.car}</strong></span>
           </div></div>${badge(r.status)}
         </div>
-        ${r.status==='assigned'?`<button class="btn btn-success" onclick="openComplete(${r.id})">✓ Mark Trip Completed</button>`:
-        `<div style="font-size:12px;color:var(--text-secondary);background:rgba(61,191,138,0.07);border:1px solid rgba(61,191,138,0.2);padding:8px 12px;border-radius:8px">Actual KM: <strong>${akm}</strong>${et?' · End: '+et:''}${dn?' · '+dn:''}</div>`}
+        ${r.status==='assigned'?`<button class="btn btn-success" onclick="openComplete(${r.id})">v Mark Trip Completed</button>`:
+        `<div style="font-size:12px;color:var(--text-secondary);background:rgba(61,191,138,0.07);border:1px solid rgba(61,191,138,0.2);padding:8px 12px;border-radius:8px">Actual KM: <strong>${akm}</strong>${et?' . End: '+et:''}${dn?' . '+dn:''}</div>`}
       </div>`;
     }).join('')}`);
 }
@@ -880,25 +880,25 @@ async function confirmComplete(){
   if(!km||km<=0){toast('Enter actual KM','err');return;}
   var r=requests.find(x=>x.id===completeTarget);
   if(!r||r.driver!==currentUser.displayName){toast('Not authorised','err');return;}
-  var btn=document.getElementById('complete-confirm-btn'); if(btn){btn.textContent='Saving…';btn.disabled=true;}
+  var btn=document.getElementById('complete-confirm-btn'); if(btn){btn.textContent='Saving...';btn.disabled=true;}
   try{
     await dbUpdateRequest(completeTarget,{status:'completed',actual_km:km,end_time:document.getElementById('c-endtime').value,driver_notes:document.getElementById('c-notes').value});
     closeModal('complete-modal'); await renderDriverTrips(); toast('Trip completed! KM: '+km,'ok');
-  } catch(err){ toast('Error: '+err.message,'err'); } finally{ if(btn){btn.textContent='Mark Completed ✓';btn.disabled=false;} }
+  } catch(err){ toast('Error: '+err.message,'err'); } finally{ if(btn){btn.textContent='Mark Completed v';btn.disabled=false;} }
 }
 
-// ── MANAGE FLEET ──────────────────────────────────────────────────
+// -- MANAGE FLEET --------------------------------------------------
 async function renderFleet(){
   setPage(`
     <div class="ptitle">Manage Fleet</div>
-    <div class="psubtitle">Add or remove drivers and vehicles — admin only</div>
+    <div class="psubtitle">Add or remove drivers and vehicles -- admin only</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div>
         <div class="section-header">
           <div class="ctitle" style="margin:0">Drivers <span class="chip" id="drv-count">${drivers.length}</span></div>
           <button class="btn btn-primary btn-sm" onclick="openModal('add-driver-modal')">+ Add Driver</button>
         </div>
-        ${searchWidget('fleet-drv-search','Search drivers…','filterFleetDrivers(this.value)')}
+        ${searchWidget('fleet-drv-search','Search drivers...','filterFleetDrivers(this.value)')}
         <div class="glass-card" style="padding:.5rem 1rem" id="fleet-drv-list"></div>
       </div>
       <div>
@@ -906,7 +906,7 @@ async function renderFleet(){
           <div class="ctitle" style="margin:0">Cars <span class="chip" id="car-count">${cars.length}</span></div>
           <button class="btn btn-primary btn-sm" onclick="openModal('add-car-modal')">+ Add Car</button>
         </div>
-        ${searchWidget('fleet-car-search','Search cars…','filterFleetCars(this.value)')}
+        ${searchWidget('fleet-car-search','Search cars...','filterFleetCars(this.value)')}
         <div class="glass-card" style="padding:.5rem 1rem" id="fleet-car-list"></div>
       </div>
     </div>`);
@@ -914,11 +914,11 @@ async function renderFleet(){
 }
 function driverRow(d){
   var t=requests.filter(r=>r.driver===d.name&&r.status==='completed'), km=t.reduce((s,r)=>s+(r.actualKm||r.actual_km||0),0);
-  return`<div class="drow"><div style="display:flex;align-items:center;gap:11px"><div class="avatar">${ini(d.name)}</div><div><div style="font-size:13px;font-weight:600">${d.name}</div><div style="font-size:11px;color:var(--text-secondary)">${d.phone}</div><div style="font-size:10px;color:var(--text-muted)">${d.license}</div></div></div><div style="display:flex;align-items:center;gap:8px"><div style="text-align:right"><div style="font-size:12px;font-weight:600">${t.length} trips · ${km}km</div></div><button class="btn btn-danger btn-sm btn-icon" onclick="removeDriver(${d.id})">×</button></div></div>`;
+  return`<div class="drow"><div style="display:flex;align-items:center;gap:11px"><div class="avatar">${ini(d.name)}</div><div><div style="font-size:13px;font-weight:600">${d.name}</div><div style="font-size:11px;color:var(--text-secondary)">${d.phone}</div><div style="font-size:10px;color:var(--text-muted)">${d.license}</div></div></div><div style="display:flex;align-items:center;gap:8px"><div style="text-align:right"><div style="font-size:12px;font-weight:600">${t.length} trips . ${km}km</div></div><button class="btn btn-danger btn-sm btn-icon" onclick="removeDriver(${d.id})">×</button></div></div>`;
 }
 function carRow(c){
   var t=requests.filter(r=>r.car===c.reg&&r.status==='completed'), km=t.reduce((s,r)=>s+(r.actualKm||r.actual_km||0),0);
-  return`<div class="drow"><div style="display:flex;align-items:center;gap:11px"><span class="color-dot" style="width:14px;height:14px;background:${c.hex}"></span><div><div style="font-size:13px;font-weight:600">${c.model}</div><div style="font-size:11px;color:var(--text-secondary)">${c.reg}</div><div style="font-size:10px;color:var(--text-muted)">${c.color}</div></div></div><div style="display:flex;align-items:center;gap:8px"><div style="text-align:right"><div style="font-size:12px;font-weight:600">${t.length} trips · ${km}km</div></div><button class="btn btn-danger btn-sm btn-icon" onclick="removeCar(${c.id})">×</button></div></div>`;
+  return`<div class="drow"><div style="display:flex;align-items:center;gap:11px"><span class="color-dot" style="width:14px;height:14px;background:${c.hex}"></span><div><div style="font-size:13px;font-weight:600">${c.model}</div><div style="font-size:11px;color:var(--text-secondary)">${c.reg}</div><div style="font-size:10px;color:var(--text-muted)">${c.color}</div></div></div><div style="display:flex;align-items:center;gap:8px"><div style="text-align:right"><div style="font-size:12px;font-weight:600">${t.length} trips . ${km}km</div></div><button class="btn btn-danger btn-sm btn-icon" onclick="removeCar(${c.id})">×</button></div></div>`;
 }
 function renderFleetDrivers(list){var el=document.getElementById('fleet-drv-list');if(!el)return;var c=document.getElementById('drv-count');if(c)c.textContent=list.length;el.innerHTML=list.length?list.map(driverRow).join(''):'<div class="no-results">No drivers found</div>';}
 function renderFleetCars(list){var el=document.getElementById('fleet-car-list');if(!el)return;var c=document.getElementById('car-count');if(c)c.textContent=list.length;el.innerHTML=list.length?list.map(carRow).join(''):'<div class="no-results">No cars found</div>';}
@@ -957,25 +957,25 @@ async function addCar(){
   } catch(err){ toast('Error: '+err.message,'err'); }
 }
 
-// ── MANAGE USERS ──────────────────────────────────────────────────
+// -- MANAGE USERS --------------------------------------------------
 async function renderUsers(){
   setPage(`
     <div class="ptitle">Manage Users</div>
-    <div class="psubtitle">Admin-only — manage employees and all login credentials</div>
+    <div class="psubtitle">Admin-only -- manage employees and all login credentials</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div>
         <div class="section-header">
           <div class="ctitle" style="margin:0">Employees <span class="chip" id="emp-count">${employees.length}</span></div>
           <button class="btn btn-primary btn-sm" onclick="openModal('add-emp-modal')">+ Add Employee</button>
         </div>
-        ${searchWidget('usr-emp-search','Search employees…',"filterUsers('emp',this.value)")}
+        ${searchWidget('usr-emp-search','Search employees...',"filterUsers('emp',this.value)")}
         <div class="glass-card" style="padding:.5rem 1rem" id="usr-emp-list"></div>
       </div>
       <div>
         <div class="section-header">
           <div class="ctitle" style="margin:0">Driver Logins <span class="chip" id="drv-login-count">${drivers.length}</span></div>
         </div>
-        ${searchWidget('usr-drv-search','Search drivers…',"filterUsers('driver',this.value)")}
+        ${searchWidget('usr-drv-search','Search drivers...',"filterUsers('driver',this.value)")}
         <div class="glass-card" style="padding:.5rem 1rem" id="usr-drv-list"></div>
       </div>
     </div>`);
@@ -983,11 +983,11 @@ async function renderUsers(){
 }
 function empUserRow(e){
   var eid=e.empId||e.emp_id, u=USERS.find(x=>(x.empId||x.emp_id)===eid);
-  return`<div class="drow"><div style="display:flex;align-items:center;gap:11px"><div class="avatar avatar-emp">${ini(e.name)}</div><div><div style="font-size:13px;font-weight:600">${e.name}</div><div class="emp-id">${eid} · ${e.dept||''}</div>${u?`<div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap"><span class="cred-tag">👤 ${u.username}</span><span class="cred-tag">🔑 ${'•'.repeat(Math.min((u.password||'').length,8))}</span></div>`:'<div style="font-size:10px;color:var(--danger);margin-top:3px">⚠ No login yet</div>'}</div></div><div style="display:flex;gap:5px;align-items:center"><button class="btn btn-warn btn-sm" onclick="openEditCred('emp','${eid}')">Edit Login</button><button class="btn btn-danger btn-sm btn-icon" onclick="removeEmployee(${e.id})">×</button></div></div>`;
+  return`<div class="drow"><div style="display:flex;align-items:center;gap:11px"><div class="avatar avatar-emp">${ini(e.name)}</div><div><div style="font-size:13px;font-weight:600">${e.name}</div><div class="emp-id">${eid} . ${e.dept||''}</div>${u?`<div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap"><span class="cred-tag">👤 ${u.username}</span><span class="cred-tag">🔑 ${'-'.repeat(Math.min((u.password||'').length,8))}</span></div>`:'<div style="font-size:10px;color:var(--danger);margin-top:3px">! No login yet</div>'}</div></div><div style="display:flex;gap:5px;align-items:center"><button class="btn btn-warn btn-sm" onclick="openEditCred('emp','${eid}')">Edit Login</button><button class="btn btn-danger btn-sm btn-icon" onclick="removeEmployee(${e.id})">×</button></div></div>`;
 }
 function drvUserRow(d){
   var u=USERS.find(x=>(x.driverId||x.driver_id)===d.id);
-  return`<div class="drow"><div style="display:flex;align-items:center;gap:11px"><div class="avatar">${ini(d.name)}</div><div><div style="font-size:13px;font-weight:600">${d.name}</div><div style="font-size:11px;color:var(--text-secondary)">${d.phone}</div>${u?`<div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap"><span class="cred-tag">👤 ${u.username}</span><span class="cred-tag">🔑 ${'•'.repeat(Math.min((u.password||'').length,8))}</span></div>`:'<div style="font-size:10px;color:var(--danger);margin-top:3px">⚠ No login yet</div>'}</div></div><button class="btn btn-warn btn-sm" onclick="openEditCred('driver',${d.id})">Edit Login</button></div>`;
+  return`<div class="drow"><div style="display:flex;align-items:center;gap:11px"><div class="avatar">${ini(d.name)}</div><div><div style="font-size:13px;font-weight:600">${d.name}</div><div style="font-size:11px;color:var(--text-secondary)">${d.phone}</div>${u?`<div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap"><span class="cred-tag">👤 ${u.username}</span><span class="cred-tag">🔑 ${'-'.repeat(Math.min((u.password||'').length,8))}</span></div>`:'<div style="font-size:10px;color:var(--danger);margin-top:3px">! No login yet</div>'}</div></div><button class="btn btn-warn btn-sm" onclick="openEditCred('driver',${d.id})">Edit Login</button></div>`;
 }
 function renderUserEmpList(list){var el=document.getElementById('usr-emp-list');if(!el)return;var c=document.getElementById('emp-count');if(c)c.textContent=list.length;el.innerHTML=list.length?list.map(empUserRow).join(''):'<div class="no-results">No employees found</div>';}
 function renderUserDrvList(list){var el=document.getElementById('usr-drv-list');if(!el)return;var c=document.getElementById('drv-login-count');if(c)c.textContent=list.length;el.innerHTML=list.length?list.map(drvUserRow).join(''):'<div class="no-results">No drivers found</div>';}
@@ -1058,7 +1058,7 @@ async function addEmployee(){
   } catch(err){ toast('Error: '+err.message,'err'); }
 }
 
-// ── MONTHLY TRACKING ──────────────────────────────────────────────
+// -- MONTHLY TRACKING ----------------------------------------------
 async function renderMonthly(){
   var months=[...new Set(requests.filter(r=>r.month).map(r=>r.month))];
   if(!months.length)months=['May'];
@@ -1073,15 +1073,15 @@ function renderMonthContent(month){
     var done=trips.filter(r=>r.status==='completed'), km=done.reduce((s,r)=>s+(r.actualKm||r.actual_km||0),0);
     var rows=trips.map(r=>{
       var ei=r.empId||r.emp_id, pt=r.pickupTime||r.pickup_time, dt=r.dropTime||r.drop_time, fr=r.from||r.from_loc, to=r.to||r.to_loc, akm=r.actualKm||r.actual_km||0;
-      return`<div class="trip-row"><span>${r.date} · <span class="emp-id">${ei}</span> ${r.name} · ${fr} → ${to} <span class="time-range-badge" style="font-size:9px;padding:1px 6px">🕐 ${pt}–${dt}</span></span><span>${badge(r.status)}${akm?` <strong>${akm}km</strong>`:''}</span></div>`;
+      return`<div class="trip-row"><span>${r.date} . <span class="emp-id">${ei}</span> ${r.name} . ${fr} -> ${to} <span class="time-range-badge" style="font-size:9px;padding:1px 6px">🕐 ${pt}-${dt}</span></span><span>${badge(r.status)}${akm?` <strong>${akm}km</strong>`:''}</span></div>`;
     }).join('');
-    return`<div class="dm-card"><div class="dm-header"><div class="avatar">${ini(d.name)}</div><div><div style="font-size:14px;font-weight:700">${d.name}</div><div style="font-size:11px;color:var(--text-secondary)">${d.phone} · ${d.license}</div></div></div><div class="dm-stats"><div class="dm-stat"><div class="dm-stat-label">Assigned</div><div class="dm-stat-val">${trips.length}</div></div><div class="dm-stat"><div class="dm-stat-label">Completed</div><div class="dm-stat-val">${done.length}</div></div><div class="dm-stat"><div class="dm-stat-label">Total KM</div><div class="dm-stat-val">${km}</div></div></div><div style="margin-top:.85rem;border-top:1px solid var(--border);padding-top:.6rem">${rows}</div></div>`;
+    return`<div class="dm-card"><div class="dm-header"><div class="avatar">${ini(d.name)}</div><div><div style="font-size:14px;font-weight:700">${d.name}</div><div style="font-size:11px;color:var(--text-secondary)">${d.phone} . ${d.license}</div></div></div><div class="dm-stats"><div class="dm-stat"><div class="dm-stat-label">Assigned</div><div class="dm-stat-val">${trips.length}</div></div><div class="dm-stat"><div class="dm-stat-label">Completed</div><div class="dm-stat-val">${done.length}</div></div><div class="dm-stat"><div class="dm-stat-label">Total KM</div><div class="dm-stat-val">${km}</div></div></div><div style="margin-top:.85rem;border-top:1px solid var(--border);padding-top:.6rem">${rows}</div></div>`;
   }).filter(Boolean).join('');
   var el=document.getElementById('monthly-content');
   if(el) el.innerHTML=html||`<div class="glass-card"><div class="empty-state"><div class="icon">📅</div><div class="msg">No trips in ${month}</div></div></div>`;
 }
 
-// ── REPORTS ───────────────────────────────────────────────────────
+// -- REPORTS -------------------------------------------------------
 async function renderReports(){
   var done=requests.filter(r=>r.status==='completed'), km=done.reduce((s,r)=>s+(r.actualKm||r.actual_km||0),0), dec=requests.filter(r=>r.status==='declined').length;
   setPage(`
@@ -1096,7 +1096,7 @@ async function renderReports(){
     <div class="glass-card">
       <div class="ctitle">Driver Performance</div>
       <table class="tbl"><thead><tr><th>Driver</th><th>License</th><th>Trips</th><th>Total KM</th><th>Avg KM / Trip</th></tr></thead>
-      <tbody>${drivers.map(d=>{var t=done.filter(r=>r.driver===d.name),k=t.reduce((s,r)=>s+(r.actualKm||r.actual_km||0),0);return`<tr><td style="font-weight:600">${d.name}</td><td class="emp-id">${d.license}</td><td>${t.length}</td><td>${k}</td><td>${t.length?Math.round(k/t.length):'—'}</td></tr>`;}).join('')}</tbody>
+      <tbody>${drivers.map(d=>{var t=done.filter(r=>r.driver===d.name),k=t.reduce((s,r)=>s+(r.actualKm||r.actual_km||0),0);return`<tr><td style="font-weight:600">${d.name}</td><td class="emp-id">${d.license}</td><td>${t.length}</td><td>${k}</td><td>${t.length?Math.round(k/t.length):'--'}</td></tr>`;}).join('')}</tbody>
       </table>
     </div>
     <div class="glass-card">
@@ -1107,17 +1107,17 @@ async function renderReports(){
     </div>`);
 }
 
-// ══════════════════════════════════════════════════════════════════
-//  BOOT — initialise Supabase then render
-// ══════════════════════════════════════════════════════════════════
+// ==================================================================
+//  BOOT -- initialise Supabase then render
+// ==================================================================
 (async function boot(){
   // Show loading spinner
-  document.getElementById('root').innerHTML=`<div class="loading-screen"><div class="spinner"></div><div style="font-family:Outfit,sans-serif;font-size:14px;color:var(--text-secondary)">Starting FleetDesk…</div></div>`;
+  document.getElementById('root').innerHTML=`<div class="loading-screen"><div class="spinner"></div><div style="font-family:Outfit,sans-serif;font-size:14px;color:var(--text-secondary)">Starting FleetDesk...</div></div>`;
 
   var configured=initSupabase();
 
   if(!configured){
-    // Not configured — show setup guide briefly then go to demo login
+    // Not configured -- show setup guide briefly then go to demo login
     renderSetupGuide();
     return;
   }
@@ -1129,7 +1129,7 @@ async function renderReports(){
   } catch(err){
     console.error('Supabase connection failed:',err);
     useSupabase=false;
-    toast('Could not connect to Supabase — running in demo mode','warn');
+    toast('Could not connect to Supabase -- running in demo mode','warn');
     renderLogin();
   }
 })();
