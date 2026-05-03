@@ -14,7 +14,7 @@
      ════════════════════════════════════════════════════════════════ -->
 <script>
   var SUPABASE_URL = "https://kfwcytlsqrhbzirhfyyy.supabase.co";   // ← replace
-  var SUPABASE_KEY = "sb_publishable_yJm2R6Mu9rLZ9s-znCpLQw_NrSL15FO";                  // ← replace
+  var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtmd2N5dGxzcXJoYnppcmhmeXl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NTMyMzYsImV4cCI6MjA5MzIyOTIzNn0.KYrC33fMXh3vfFr_Ivq99guLeJSWAxrQLpnm-Zs-XCI";                  // ← replace
 </script>
 
 <!-- Supabase JS SDK (CDN) -->
@@ -1127,7 +1127,7 @@ async function renderReports(){
     await refreshData();
     renderLogin();
   } catch(err){
-    console.error('Supabase connection failed:',e);
+    console.error('Supabase connection failed:',err);
     useSupabase=false;
     toast('Could not connect to Supabase — running in demo mode','warn');
     renderLogin();
